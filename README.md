@@ -15,3 +15,8 @@ Namespace: Init
 ## Current Versions 
 V1: 🟡 Still Under Development **08.02.2026** </br>
 V2: 🔴 I Didnt Even Started Making. After V1 More INFO Would Come.
+
+## Technologies Used
+- C#
+- Unity Engine
+- Mono Framework
