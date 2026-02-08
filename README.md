@@ -11,3 +11,7 @@ Choose DLL on the second tab
 Namespace: YapYapTrainer
 Class: Loader
 Namespace: Init
+```
+## Current Versions 
+V1: 🟡 Still Under Development **08.02.2026**
+V2: 🔴 I Didnt Even Started Making. After V1 More INFO Would Come.
