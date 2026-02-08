@@ -21,5 +21,5 @@ V2: 🔴 I Didnt Even Started Making. After V1 More INFO Would Come.
 - Unity Engine
 - Mono Framework
 
-##⚠️ Important
+## ⚠️ Important
 This trainer only helps players mod the game by reverse engineering it alone or with individuals they have permission from. If you use this trainer in a multiplayer environment, you are responsible for the consequences.
