@@ -27,6 +27,9 @@ namespace YapYapTrainer
         private string messageInput = "";
         private bool godmode;
         private bool ghost = false;
+        private bool dropprops = false;
+        private bool spawnvoid = false;
+        private bool gold = false;
         private bool stamina = false;
         private bool menushow = true;
         private int selectedTab = 0;
@@ -60,7 +63,11 @@ namespace YapYapTrainer
             KeyBoardStuff();
             if (godmode)
             {
-               
+                var playerhealthstuff = GameObject.FindObjectsOfType<PawnHurtbox>();
+                foreach (YAPYAP.PawnHurtbox healththing in playerhealthstuff)
+                {
+                    healththing.SvSetHealth(100);
+                }
             }
             if (stamina)
             {
@@ -68,6 +75,44 @@ namespace YapYapTrainer
                 foreach (YAPYAP.PawnBlackboard staminathing in staminastuff)
                 {
                     staminathing.Stamina = 90f;
+                }
+            }
+            if (ghost)
+            {
+                var gamestuff = GameObject.FindObjectsOfType<YAPYAP.GameManager>();
+                foreach (YAPYAP.GameManager gamedata in gamestuff)
+                {
+                    gamedata.NetworkghostSpawned = true;
+                }
+            }
+            if (gold)
+            {
+                var goldstuff = GameObject.FindObjectsOfType<YAPYAP.UIGameScore>();
+                foreach (YAPYAP.UIGameScore goldata in goldstuff)
+                {
+                    goldata.UpdateGold(999999, 9999999);
+                }
+            }
+
+            if (dropprops)
+            {
+                var propstuff = GameObject.FindObjectsOfType<YAPYAP.Pawn>();
+                foreach (YAPYAP.Pawn propcontrol in propstuff)
+                {
+                    propcontrol.SvDropAllProps();
+                }
+            }
+            if (spawnvoid)
+            {
+                Vector3 voidPosition = new Vector3(
+    999999f,
+    999999f,
+    999999f
+);
+                var propstuff = GameObject.FindObjectsOfType<YAPYAP.Pawn>();
+                foreach (YAPYAP.Pawn propcontrol in propstuff)
+                {
+                    propcontrol.SvTeleport(voidPosition, playFx: false, roundStartedPrevent: false);
                 }
             }
         }
@@ -133,12 +178,12 @@ namespace YapYapTrainer
                     healthdata.SvDoRevive();
                 }
             }
-            if (GUILayout.Button("End Round", GUILayout.Width(155), GUILayout.Height(52)))
+            if (GUILayout.Button("Ragdoll Players", GUILayout.Width(155), GUILayout.Height(52)))
             {
-                var gamestuff = GameObject.FindObjectsOfType<YAPYAP.GameManager>();
-                foreach (YAPYAP.GameManager gamedata in gamestuff)
+                var players = GameObject.FindObjectsOfType<YAPYAP.Pawn>();
+                foreach (YAPYAP.Pawn playerss in players)
                 {
-                    gamedata.SvEndRound();
+                    playerss.SvSetRagdoll(-playerss.transform.forward * 15f + Vector3.up * 5f);
                 }
             }
             GUILayout.EndHorizontal();
@@ -151,29 +196,15 @@ namespace YapYapTrainer
                     gamedata.SvStartRound();
                 }
             }
-            ghost = GUILayout.Toggle(ghost, "Spawn Ghost", GUILayout.Width(145), GUILayout.Height(52));
-
-            if (ghost)
+            if (GUILayout.Button("End Round", GUILayout.Width(145), GUILayout.Height(52)))
             {
                 var gamestuff = GameObject.FindObjectsOfType<YAPYAP.GameManager>();
                 foreach (YAPYAP.GameManager gamedata in gamestuff)
                 {
-                    gamedata.NetworkghostSpawned = true;
+                    gamedata.SvEndRound();
                 }
             }
-            else
-            {
-                var gamestuff = GameObject.FindObjectsOfType<YAPYAP.GameManager>();
-                foreach (YAPYAP.GameManager gamedata in gamestuff)
-                {
-                    gamedata.NetworkghostSpawned = false;
-                }
-            }
-
-            stamina = GUILayout.Toggle(stamina, "Inf Stamina", GUILayout.Width(145), GUILayout.Height(52));
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add Inf Points", GUILayout.Width(145), GUILayout.Height(52)))
+            if (GUILayout.Button("Add Inf Points", GUILayout.Width(155), GUILayout.Height(52)))
             {
                 var gamestuff = GameObject.FindObjectsOfType<YAPYAP.GameManager>();
                 foreach (YAPYAP.GameManager gamedata in gamestuff)
@@ -181,16 +212,18 @@ namespace YapYapTrainer
                     gamedata.SetTotalScore(9999999);
                 }
             }
-            if (GUILayout.Button("Ragdoll Players", GUILayout.Width(145), GUILayout.Height(52)))
-            {
-                var players = GameObject.FindObjectsOfType<YAPYAP.Pawn>();
-                foreach (YAPYAP.Pawn playerss in players)
-                {
-                    playerss.SvSetRagdoll(-playerss.transform.forward * 15f + Vector3.up * 5f);
-                }
-            }
             GUILayout.EndHorizontal();
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(400));
+            GUILayout.BeginHorizontal();
+            ghost = GUILayout.Toggle(ghost, "Spawn Ghost", GUILayout.Width(145), GUILayout.Height(22));
+            stamina = GUILayout.Toggle(stamina, "Inf Stamina", GUILayout.Width(145), GUILayout.Height(22));
+            godmode = GUILayout.Toggle(godmode, "God Mode", GUILayout.Width(145), GUILayout.Height(22));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            gold = GUILayout.Toggle(gold, "Inf Gold", GUILayout.Width(145), GUILayout.Height(22));
+            dropprops = GUILayout.Toggle(dropprops, "All Drop Items", GUILayout.Width(145), GUILayout.Height(22));
+            spawnvoid = GUILayout.Toggle(spawnvoid, "All Spawn Void", GUILayout.Width(145), GUILayout.Height(22));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(445));
 
             GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
             headerStyle.alignment = TextAnchor.MiddleCenter;
@@ -199,7 +232,7 @@ namespace YapYapTrainer
             GUILayout.Label("Players", headerStyle);
             GUILayout.Space(5);
             Vector2 scroll = Vector2.zero;
-            scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(200));
+            scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(165));
             var allPawns = UnityEngine.Object.FindObjectsOfType<YAPYAP.Pawn>();
             foreach (var pawn in allPawns)
             {
@@ -216,9 +249,7 @@ namespace YapYapTrainer
                 GUILayout.EndHorizontal();
                 GUILayout.Space(2);
             }
-
             GUILayout.EndScrollView();
-            GUILayout.EndHorizontal();
             GUILayout.EndVertical();
             GUI.DragWindow();
 
@@ -228,7 +259,7 @@ namespace YapYapTrainer
         private void menu2(int id)
         {
             windowRect.width = 480f;
-            windowRect.height = 400f;
+            windowRect.height = 500f;
             GUIStyle windowStyle = new GUIStyle(GUI.skin.window);
             Color hoverColor = new Color(0f, 51f / 255f, 102f / 255f);
             Texture2D hoverTexture = new Texture2D(1, 1);
@@ -241,15 +272,65 @@ namespace YapYapTrainer
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Self And Server Trolls", GUILayout.Width(200f)))
                 selectedTab = 0;
-
             GUILayout.Space(56);
-
             if (GUILayout.Button("Credits", GUILayout.Width(200f)))
                 selectedTab = 1;
             GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            //i will code this part later lol
-            GUILayout.EndHorizontal();
+            GUILayout.Space(10);
+            GUILayout.BeginVertical();
+            GUIStyle titleStyle = new GUIStyle(GUI.skin.label);
+            titleStyle.alignment = TextAnchor.MiddleCenter;
+            titleStyle.fontSize = 24;
+            titleStyle.fontStyle = FontStyle.Bold;
+            GUILayout.Label("CREDITS", titleStyle);
+            GUILayout.Space(15);
+            GUIStyle sectionTitleStyle = new GUIStyle(GUI.skin.label);
+            sectionTitleStyle.alignment = TextAnchor.MiddleCenter;
+            sectionTitleStyle.fontSize = 16;
+            sectionTitleStyle.fontStyle = FontStyle.Bold;
+            GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+            textStyle.alignment = TextAnchor.MiddleCenter;
+            textStyle.fontSize = 13;
+            textStyle.wordWrap = true;
+            GUILayout.Label("Developed by", sectionTitleStyle);
+            GUILayout.Space(5);
+            GUILayout.Label("sadece1eren", textStyle);
+            GUILayout.Space(20);
+            GUILayout.Label("Technologies Used", sectionTitleStyle);
+            GUILayout.Space(5);
+            GUILayout.Label(
+                "• Unity Engine (IMGUI)\n" +
+                "• Mirror Networking\n" +
+                "• Server-side RPC Control\n" +
+                "• NetworkBehaviour Hooks\n" +
+                "• Runtime Object Manipulation\n" +
+                "• Custom Admin / Debug Tools",
+                textStyle
+            );
+            GUILayout.Space(20);
+            GUILayout.Label("Controls", sectionTitleStyle);
+            GUILayout.Space(5);
+            GUILayout.Label(
+                "PageUp  → Show / Hide Menu\n" +
+                "End     → Terminate Process",
+                textStyle
+            );
+            GUILayout.Space(20);
+            GUIStyle disclaimerStyle = new GUIStyle(GUI.skin.label);
+            disclaimerStyle.alignment = TextAnchor.MiddleCenter;
+            disclaimerStyle.fontSize = 11;
+            disclaimerStyle.wordWrap = true;
+            disclaimerStyle.fontStyle = FontStyle.Italic;
+
+            GUILayout.Label(
+                "Experimental DLL Made by me idk if i can do v2 lol.\n" +
+                "Not intended for fair play.\n" +
+                "Use responsibly… or don't ;P",
+                disclaimerStyle
+            );
+
+            GUILayout.EndVertical();
+
             GUI.DragWindow();
         }
 
