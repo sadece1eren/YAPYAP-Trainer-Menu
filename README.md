@@ -14,7 +14,7 @@ Namespace: Init
 ```
 ## Current Versions 
 V1: 🟢 Released February 2026</br>
-[Download](https://github.com/sadece1eren/YAPYAP-Trainer-Menu/releases/tag/V1).
+[Download](https://github.com/sadece1eren/YAPYAP-Trainer-Menu/releases/tag/V1)
 ## Technologies Used
 - C#
 - Unity Engine (IMGUI)
